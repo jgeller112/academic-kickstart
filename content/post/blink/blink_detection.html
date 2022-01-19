@@ -1,0 +1,69 @@
+---
+title: "Blink Detection Using GazeR"
+author: "Jason Geller"
+date: "2020-12-09 15:44:40"
+output: html_document
+---
+
+<script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
+<link href="/rmarkdown-libs/anchor-sections/anchor-sections.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/anchor-sections/anchor-sections.js"></script>
+
+
+<p>While it is generally agreed that blinks need to be taken care of during preprocessing, most eye tracking software does not include this event information. This has lead to the development of several great blink algorithms. I decided to implement a velocity based one off of Matĥot (2013) in gazeR .The code itself very simple and intuitive algorithm and does a nice job recovering the pupil data.</p>
+<p>This vignette will show how you the steps involved in identifying blinks that underlie the <code>blink_velocity</code> function in gazeR.</p>
+<p>First load gazeR and some sample data.</p>
+<pre class="r"><code>library(gazer)
+library(cowplot)
+library(data.table)
+library(patchwork)
+library(tidyverse)</code></pre>
+<pre class="r"><code>pupil_path &lt;- system.file(&quot;extdata&quot;, &quot;pupil_sample_files_edf.xls&quot;, package = &quot;gazer&quot;)
+pupil_files1&lt;-fread(pupil_path)
+pupil_files1 &lt;- as_tibble(pupil_files1)</code></pre>
+<div id="blink-detection" class="section level1">
+<h1>Blink Detection</h1>
+<p>For blink detection we are using a variation of Mathôt’s (2013) approach.I found some parts of his paper to follow. First the
+uncorrected pupil signal for a single trial from a single subject is plotted as a continuous signal.
+The signal is measured in arbitrary units as outputted by Eyelink’s software
+(Please check your own data before using this). In the below figure, it is clear
+to see that the participant blinked three times during the trial. Eye blinks are
+characterized by a pronounced drop in the pupillary signal, followed by a full loss of signal,
+and then usually a recovery artifact when the signal comes back online.</p>
+<p><img src="/post/blink/blink_detection_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>In order to detect these events systematically, I calculated a
+velocity profile for each trace. However, the original signal is too noisy to create a reliable
+profile. In order to detect blinks efficiently, I began by smoothing the signal using a weighted
+moving window average of 10 samples (i.e., 20 ms; 250 Hz tracker).</p>
+<p><img src="/post/blink/blink_detection_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p>Next I created a velocity profile by subtracting each sample from the immediately
+preceding sample in the signal.</p>
+<pre class="r"><code>  pupil_blink_algo1 &lt;- pupil_blink_algo %&gt;% 
+    mutate(velocity_pupil=c(diff(smooth_pupil)/diff(time), 0))
+  
+
+pup_g2&lt;- ggplot(pupil_blink_algo1, aes(x= time, y= velocity_pupil)) + 
+  geom_point()+ geom_line(colour=&quot;black&quot;) + ylab(&quot;Pupil Speed&quot;) + 
+  ggtitle(&quot;Pupil Velocity&quot;)
+
+pup_g2</code></pre>
+<pre><code>## Warning: Removed 42 rows containing missing values (geom_point).</code></pre>
+<p><img src="/post/blink/blink_detection_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p>Blink onsets were subsequently identified as occurring when the velocity crossed
+a predetermined negative threshold (I selected -5 based on Mathot’s (2013) recommendation.
+This rapid decrease in pupil diameter corresponds to the
+apparent decrease in size of the pupil as the eyelid closes. Likewise, when the eyelid reopens
+there is a recovery artifact wherein pupil size rapidly gets larger. Thus, the algorithm detected the
+recovery period by indexing the time since onset that velocity exceed some positive threshold (I
+selected -5, again based off Matĥot (2013) recommendation). Finally, the offset was detected as the time at
+which velocity fell back down to 0. In this way, a blink corresponds to an onset, recovery, and
+offset index. According to Mathôt (2013), this detection algorithm underestimates the blink
+period by several milliseconds, thus I selected a margin value (10 ms) which was subtracted from
+the onset and added to the offset using the ’extend_blinks` function in gazeR.
+Finally, the pupil signal was then linearly interpolated.</p>
+<p><img src="/post/blink/blink_detection_files/figure-html/pressure-1.png" width="672" /><img src="/post/blink/blink_detection_files/figure-html/pressure-2.png" width="672" /></p>
+<p>By looking at interpolated data plotted over the raw data we can see that the algo
+did a pretty good job at finding the blinks and recovering the pupil signal.
+These steps are all contained in the <code>blink_mathot</code> function.</p>
+<p><img src="/post/blink/blink_detection_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+</div>

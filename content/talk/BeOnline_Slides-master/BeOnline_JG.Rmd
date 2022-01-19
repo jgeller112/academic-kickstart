@@ -1,0 +1,361 @@
+---
+title: "What Did You Say? A Web-Based Validation of a Speech-In-Noise Task"
+author: "Jason Geller, Ph.D."
+subtitle: "Rutgers University Center for Cognitive Science"
+date: "`r Sys.time()`"
+event: "BeOnline 2021"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["hygge", "rutgers", "rutgers-fonts"]
+    nature:
+      beforeInit: ["https://www.jvcasillas.com/ru_xaringan/js/ru_xaringan.js", "https://platform.twitter.com/widgets.js"]
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: "16:12"
+      titleSlideClass: ["left", "middle", "inverse"]
+---
+<style type="text/css">
+.remark-slide-content {
+    font-size: 22px;
+    padding: 1em 4em 1em 4em;
+}
+
+```{r xaringan-themer, include=FALSE, warning=FALSE}
+library(xaringanthemer)
+library(xaringanExtra)
+style_mono_accent(
+  base_color = "#1c5253",
+  header_font_google = google_font("Josefin Sans"),
+  text_font_google   = google_font("Open Sans", "300", "300i"),
+  code_font_google   = google_font("Fira Mono")
+)
+```
+---
+background-image:url("images/cocktail.jpeg")
+
+---
+# Open-Set vs. Closed-set SiN Tasks
+
++ Open-set
+
+<html>
+  <head>
+    <title>Audio</title>
+  </head>
+  <body>
+    <script>
+      function play() {
+        var audio = document.getElementById("audio");
+        audio.play();
+      }
+    </script>
+    <input type="button" value="PLAY" onclick="play()">
+    <audio id="audio" src="ball_noise.wav"></audio>
+  </body>
+</html>
+
+
+--
+
+```{r,fig.width=12, fig.align="center", fig.height=8,echo=FALSE}
+knitr::include_graphics('images/open.jpeg')
+
+```	
+
+---
+# Closed vs. Open-Set Tasks
++ Closed-set
+
+  - Fall <br>
+  - *Ball* <br>
+  - Shawl <br>
+  - Wall <br>
+
+
+```{r,fig.width=12, fig.align="center", fig.height=10,echo=FALSE}
+knitr::include_graphics('images/closed1.jpeg')
+
+```	
+
+---
+# Issues 
+
+- Sentence-based (open-set) tasks are generally preferred as they are the most ecologically valid 
+
+--
+
+- However: 
+  + Open-set tasks are difficult to use experimentally
+     -  Engages a whole host of processes not related to speech perception
+--
+
+- We need a closed-set task that better approximates everyday listening situations
+
+--
+
+ + Lexical competition
+ + Talker variability
+
+---
+
+# Iowa Test of Consonant Perception
++ 4-AFC closed-set (single word) SiN task 
+
+  - 120 target words
+  
+      - Each target word belongs to a set and within the set appears as target and foil
+      
+      - Each word spoken by 4 speakers (2 women)
+      
+  - Minimal pairs differing by first consonant
+  
++ Uses multi-speaker babble
+
+<html>
+  <head>
+    <title>Audio</title>
+  </head>
+  <body>
+    <script>
+      function play() {
+        var audio = document.getElementById("audio");
+        audio.play();
+      }
+    </script>
+    <input type="button" value="PLAY" onclick="play()">
+    <audio id="audio" src="ball_noise.wav"></audio>
+  </body>
+</html>
+
++ All analysis scripts, materials, and data are available at our OSF page.
+  - Roll your own ITCP
+
+---
+
+background-image: url("images/empty_bottle_03.jpeg")
+
+---
+
+background-image: url("images/bob.jpeg")
+
+---
+# Procedure
+
++ Two sessions (spaced one week apart)
+
+  - Gorilla 
+  - Prolific
+
+---
+
+# Procedure
+
++ Session 1 (*N*=199)
+
+--
+
+```{r,fig.align="center",echo=FALSE, out.width="30%"}
+knitr::include_graphics('Session1.png')
+
+```	
+
+---
+# Procedure
+
++ Session 2 (*N* = 98)
+
+```{r,fig.align="center",echo=FALSE, out.width="25%"}
+knitr::include_graphics('Session2.png')
+
+```	
+
+---
+# Procedure
+- Let's try it out!
+https://app.gorilla.sc/openmaterials/97811
+
+
+---
+# Pilot
+
++ Performance in Silence
+    - *N* = 50
+      - *M* = 95%
+---
+
+# Reliability
+ + Test-Retest
+  - ICC(A,2)  = .80
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(osfr)
+library(ggstatsplot)
+library(tidyverse)
+library(DiagrammeR)
+# use opst to read in files from osfpage
+d= osf_retrieve_file("https://osf.io/dqm67/") %>%
+    osf_download(conflicts = "skip")
+
+icc_itcp<-read_csv("itcp_cnc_azbio_summary.csv")
+
+```
+
+
+```{r fig.align='center',fig.width=12, fig.align="center", fig.height=6,echo=FALSE,  warning=FALSE, message=FALSE}
+
+session12=ggstatsplot::ggscatterstats(
+  data = icc_itcp,
+  x = session1,
+  y = session2,
+  bf.message = FALSE, 
+  xlab = "Session 1 of ITCP",
+  ylab = "Session 2 of ITCP",
+  type= "r", 
+  xfill = "#0072B2", # color fill for x-axis marginal distribution
+  yfill = "#009E73", # color fill for y-axis marginal distribution
+  xalpha = 0.6, # transparency for x-axis marginal distribution
+  yalpha = 0.6, # transparency for y-axis marginal distribution
+point.size = 4,
+results.subtitle=FALSE, 
+xsize=1, 
+ysize=1, 
+ggstatsplot.layer = FALSE, 
+ggplot.component = list(theme(text = element_text(size = 20, family="Arial")), ggplot.component=list(
+        scale_y_continuous(limits = c(0, 1)),
+         scale_x_continuous(limits = c(0, 1)))))
+
+#d=ggsave("Azbio_new1.png", width=12, height=12, dpi=500, type = "cairo")
+session12 
+
+```
+---
+# Validity
+
++ Session 1 of ITCP and CNC
+
+
+```{r fig.align='center',fig.width=12, fig.align="center", fig.height=6,echo=FALSE,  warning=FALSE, message=FALSE}
+
+cnc=ggstatsplot::ggscatterstats(
+  data = icc_itcp,
+  x = session1,
+  y = meancnc,
+  bf.message = FALSE, 
+  xlab = "Session 1 of ITCP",
+  ylab = "CNC",
+  type= "r", 
+  xfill = "#0072B2", # color fill for x-axis marginal distribution
+  yfill = "#009E73", # color fill for y-axis marginal distribution
+  xalpha = 0.6, # transparency for x-axis marginal distribution
+  yalpha = 0.6, # transparency for y-axis marginal distribution
+point.size = 4,
+results.subtitle=TRUE, 
+xsize=1, 
+ysize=1, 
+ggstatsplot.layer = FALSE, 
+ggplot.component = list(theme(text = element_text(size = 20, family="Arial")), ggplot.component=list(
+        scale_y_continuous(limits = c(0, 1)),
+         scale_x_continuous(limits = c(0, 1)))))
+
+#d=ggsave("Azbio_new1.png", width=12, height=12, dpi=500, type = "cairo")
+cnc
+
+```
+---
+# Validity
++ Session 1 of ITCP and AzBio
+
+```{r fig.align='center',fig.width=12, fig.align="center", fig.height=6,echo=FALSE,  warning=FALSE, message=FALSE}
+
+cnc=ggstatsplot::ggscatterstats(
+  data = icc_itcp,
+  x = session1,
+  y = mean_az,
+  bf.message = FALSE, 
+  xlab = "Session 1 of ITCP",
+  ylab = "AzBio",
+  type= "r", 
+  xfill = "#0072B2", # color fill for x-axis marginal distribution
+  yfill = "#009E73", # color fill for y-axis marginal distribution
+  xalpha = 0.6, # transparency for x-axis marginal distribution
+  yalpha = 0.6, # transparency for y-axis marginal distribution
+point.size = 4,
+results.subtitle=TRUE, 
+xsize=1, 
+ysize=1, 
+ggstatsplot.layer = FALSE, 
+ggplot.component = list(theme(text = element_text(size = 20, family="Arial")), ggplot.component=list(
+        scale_y_continuous(limits = c(0, 1)),
+         scale_x_continuous(limits = c(0, 1)))))
+
+#d=ggsave("Azbio_new1.png", width=12, height=12, dpi=500, type = "cairo")
+cnc
+
+```
+---
+# IRT Model
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, out.width="65%", fig.align="center"}
+
+library(ggrepel)
+library(see)
+library(tidyverse)
+
+irt=read_csv("/Users/jgeller1/Desktop/Hope/content/talk/BeOnline_Slides-master/irt.csv")
+
+irt %>% ggplot(aes(Item, Estimate, colour=Item)) + geom_point2(size=4, alpha=0.5) + coord_flip(expand=TRUE) + theme_bw(base_size = 16) + geom_label_repel(aes(label = rownames(irt)), fontface = 'bold', box.padding = .5) + theme(axis.text.y=element_blank()) + ggtitle("Item Easiness") + theme(legend.position = "none")
+  
+```
+
+---
+
+# Future Directions
+
+.pull-left[
++ Validation in lab
+
+  - We do have data from 50 participants and data look comparable.
+  
++ Online testing for patients (e.g., hearing aid and cochlear implant users)
+
++ Use it Experimentally
+]
+--
+.pull-right[
+```{r,fig.width=8, fig.align="center", fig.height=4,echo=FALSE}
+knitr::include_graphics('inlab.png')
+
+```	
+]
+
+---
+
+# What Present Me Learned From Past Me
+
++ Give bonuses for completing second session - *set up separate studies on recruitment platform*
+
+--
+
++ Be explicit in your study description 
+
+--
+
++ Email subjects multiple times to remind them of an upcoming session
+
+--
+
++ Try to make experiment length reasonable
+
+---
+
+class: inverse, center, middle
+
+# Thank You
+
+<svg viewBox="0 0 512 512" style="height:1em;position:relative;display:inline-block;top:.1em;" xmlns="http://www.w3.org/2000/svg">
+  <path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"></path>
+</svg> @jgeller_phd
+
+
+

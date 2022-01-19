@@ -1,0 +1,690 @@
+---
+title: 'Using GazeR to Analyze Pupillometry Data'
+author: Jason Geller
+institute: Rutgers University Center for Cognitive Science
+output:
+  xaringan::moon_reader:
+    css: xaringan-themer.css
+    includes: 
+      after_body: insert-logo.html
+  lib_dir: libs
+  nature:
+    highlightStyle: github
+    highlightLines: true
+    ratio: 16:12
+    countIncrementalSlides: false
+---
+
+<script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
+
+
+<div id="cognitive-pupillometry" class="section level1">
+<h1>Cognitive Pupillometry</h1>
+<div class="figure" style="text-align: center"><span id="fig:unnamed-chunk-2"></span>
+<img src="/talk/AMP_2020/amp2020_files/figure-html/unnamed-chunk-2-1.png" alt="PubMed search for the keyword [pupillometry] from 1940-2019" width="768" />
+<p class="caption">
+Figure 1: PubMed search for the keyword [pupillometry] from 1940-2019
+</p>
+</div>
+<hr />
+</div>
+<div id="cognitive-pupillometry-1" class="section level1">
+<h1>Cognitive Pupillometry</h1>
+<p>.center[<img src="assets/img/old.JPG" />]</p>
+<table>
+<tbody>
+<tr class="odd">
+<td># Why Gazer</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>GazeR is a package to pre-process data from gaze (e.g., VWP) and pupillometry experiments</li>
+</ul>
+<p>–</p>
+<ul>
+<li><p>Not many pipelines available (this is slowly changing)</p></li>
+<li><p>PupillometryR (Sam Forbes)</p></li>
+<li><p>Pupillometry (Jason Tsukahara)</p></li>
+</ul>
+<p>–</p>
+<ul>
+<li><p>The goal was to create a start to finish pipeline for pupillometry</p>
+<ul>
+<li>Work in progress, but create a package that can be used by many different eye tracker brands</li>
+</ul></li>
+</ul>
+<p>–</p>
+<ul>
+<li>Amied to simplify some of the pre-processing decisons</li>
+</ul>
+<p>–</p>
+<ul>
+<li><h2 id="much-of-the-psychophysics-has-been-matlab-based-leaving-r-users-out-and-those-who-cannot-afford-matlab">Much of the psychophysics has been Matlab based, leaving R users out and those who cannot afford Matlab</h2>
+<table>
+<tbody>
+<tr class="odd">
+<td># What does GazeR add?</td>
+</tr>
+</tbody>
+</table></li>
+<li>Standardized and reproducible pipeline for preprocessing</li>
+</ul>
+<p>–</p>
+<ul>
+<li>Flexibility in choosing which preprocessing methods and parameters are used</li>
+</ul>
+<p>–</p>
+<ul>
+<li>Easy to understand pipeline</li>
+</ul>
+<p>–</p>
+<ul>
+<li><p>Package can be run in a container through Code Ocean!</p></li>
+<li><p>No more worrying about OS or package incompatiablies</p></li>
+</ul>
+<hr />
+<hr />
+</div>
+<div id="pupil-pre-processing" class="section level1">
+<h1>Pupil Pre-processing</h1>
+<ul>
+<li><p>Read in data</p></li>
+<li><p>De-blinking</p>
+<ul>
+<li>Extending blinks</li>
+</ul></li>
+<li><p>Interpolation and Smoothing</p></li>
+<li><p>Baseline correction</p></li>
+<li><p>Artifact rejection</p>
+<ul>
+<li>Missing data</li>
+<li>Unlikely pupil values</li>
+<li>Median absolute deviation</li>
+</ul></li>
+<li><p>Event time alignment</p></li>
+<li><p>Samples to bins (downsampling)</p></li>
+</ul>
+<hr />
+<div id="get-started" class="section level2">
+<h2># Get Started</h2>
+<ul>
+<li>Install the <strong>gazeR</strong> package from <a href="https://github.com/dmirman/gazeR">Github</a>:</li>
+</ul>
+<pre class="r"><code>remotes::install_github(&quot;dmirman/gazer&quot;)</code></pre>
+<p>–</p>
+<pre class="r"><code>library(gazer)</code></pre>
+<p>–</p>
+<p>You are recommended to use the <a href="https://www.rstudio.com/products/rstudio/">RStudio IDE</a>, but you do not have to.</p>
+<table style="width:6%;">
+<colgroup>
+<col width="5%" />
+</colgroup>
+<tbody>
+<tr class="odd">
+<td># Data
++ 4 participants</td>
+</tr>
+<tr class="even">
+<td>+ Lexical decison task with easy (type-print) and hard (cursive) trials</td>
+</tr>
+<tr class="odd">
+<td>+ Data collected with SR EyeLink 1000 plus</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="reading-in-data" class="section level1">
+<h1>Reading in data</h1>
+<ul>
+<li><p>SR Data Viewer</p></li>
+<li><p>EDF</p></li>
+<li><p>Tobii (coming soon)</p></li>
+<li><p>SR Data Viewer</p></li>
+</ul>
+<pre class="r"><code># set working directory 
+setwd(&quot;/Users/gellr/Desktop/r&quot;)
+#folder path 
+file_list &lt;- list.files (path=&quot;/Users/gellr/Desktop/r&quot;, pattern=&quot;.xls&quot;)
+#specify blink, pupil, and whether it is from sr or raw edf files
+merge_files=merge_gazer_files(file_list, blink_colname=&quot;AVERAGE_IN_BLINK&quot;, pupil_colname=&quot;AVERAGE_PUPIL_SIZE&quot;, filetype=&quot;sr&quot;)</code></pre>
+<hr />
+</div>
+<div id="reading-in-data-1" class="section level1">
+<h1>Reading in data</h1>
+<ul>
+<li>EDF</li>
+</ul>
+<pre class="r"><code>directory_edf =&quot;&quot; 
+# path to edfs
+directory_csv_from_edf_conversion =&quot;&quot; 
+# path where csv files should be stored
+
+file_list_edf &lt;- list.files(path=directory_edf, pattern=&quot;.edf&quot;) 
+# get list of edf files
+parse_edf(file_list=file_list_edf, 
+output_dir = directory_csv_from_edf_conversion, 
+type=&quot;pupil&quot;)) 
+# parses edfs and saves them into directory
+# folder path to csv folders from parse_edf
+
+file_list_pupil_samp &lt;- list.files(path=directory_csv_from_edf_conversion, 
+pattern=&quot;.csv&quot;) 
+# extract the processed csv files from directory_csv_from_edf_conversion
+
+pd &lt;- merge_gazer_files(file_list_pupil_samp, type = &quot;edf&quot;) 
+# merges all the files from file_list_pupil_samp object</code></pre>
+<table style="width:6%;">
+<colgroup>
+<col width="5%" />
+</colgroup>
+<tbody>
+<tr class="odd">
+<td># Reading in Data Example</td>
+</tr>
+<tr class="even">
+<td>```r
+pupil_path &lt;- system.file(“extdata”, “pupil_sample_files_edf.xls”, package = “gazer”)
+pupil_raw&lt;-fread(pupil_path)
+pupil_raw&lt;-as_tibble(pupil_raw)</td>
+</tr>
+<tr class="odd">
+<td>knitr::kable(head(pupil_raw))
+```</td>
+</tr>
+<tr class="even">
+<td>|subject | trial| time| pupil| x| y| blink|message | acc| block| rt|item |script |alt |
+|:——-|—–:|—-:|—–:|—–:|—–:|—–:|:————-|—:|—–:|—-:|:———|:——-|:—-|
+|11c.edf | 1| 0| 3635| 971.6| 563.2| 0|MODERECORDCRL | 1| 0| 3833|mourn.png |cursive |word |
+|11c.edf | 1| 4| 3634| 973.4| 564.7| 0|NA | 1| 0| 3833|mourn.png |cursive |word |
+|11c.edf | 1| 8| 3626| 971.8| 566.7| 0|NA | 1| 0| 3833|mourn.png |cursive |word |
+|11c.edf | 1| 12| 3622| 971.0| 566.2| 0|NA | 1| 0| 3833|mourn.png |cursive |word |
+|11c.edf | 1| 16| 3621| 972.1| 566.2| 0|NA | 1| 0| 3833|mourn.png |cursive |word |
+|11c.edf | 1| 20| 3621| 972.1| 565.8| 0|NA | 1| 0| 3833|mourn.png |cursive |word |</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="data-structure" class="section level1">
+<h1>Data Structure</h1>
+<ul>
+<li>Can work with with data from any tracker as long as you have these columns:</li>
+</ul>
+<pre class="r"><code>knitr::kable(names_needed, col.names = &quot;Names&quot;)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Names</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Subject</td>
+</tr>
+<tr class="even">
+<td align="left">Trial</td>
+</tr>
+<tr class="odd">
+<td align="left">Blink</td>
+</tr>
+<tr class="even">
+<td align="left">Pupil Size</td>
+</tr>
+<tr class="odd">
+<td align="left">Time</td>
+</tr>
+<tr class="even">
+<td align="left">Message</td>
+</tr>
+</tbody>
+</table>
+<table style="width:6%;">
+<colgroup>
+<col width="5%" />
+</colgroup>
+<tbody>
+<tr class="odd">
+<td># De-Blinking</td>
+</tr>
+<tr class="even">
+<td>.top[<img src="assets/img/image5.png" />]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="de-blinking" class="section level1">
+<h1>De-Blinking</h1>
+<ul>
+<li><p>Blinks are a major artifact in pupillometry research</p></li>
+<li><p>Eye-trackers treat blinks as missing data</p></li>
+<li><p>Values before and after blinks are spurious</p></li>
+<li><h2 id="we-need-to-extend-them">We need to extend them</h2></li>
+</ul>
+<pre class="r"><code>pup_extend&lt;- pupil_raw %&gt;% 
+  group_by(subject, trial) %&gt;% 
+  mutate(extendpupil=extend_blinks(pupil, fillback=100, 
+                                   fillforward=100, hz=250))
+  
+pup_extend1 &lt;- pup_extend %&gt;%
+  select(subject, trial, time, pupil, extendpupil)</code></pre>
+<hr />
+</div>
+<div id="smoothingfiltering-and-interpolation" class="section level1">
+<h1>Smoothing/Filtering and Interpolation</h1>
+<p>–</p>
+<ul>
+<li>Do not throw out data!</li>
+</ul>
+<p>–</p>
+<ul>
+<li>Let’s interpolate and smooth the data instead</li>
+</ul>
+<p>–</p>
+<ul>
+<li><h2 id="gazer-can-do-linear-or-cubic-interpolation">GazeR can do linear or cubic interpolation</h2></li>
+<li>Smoothing with n moving average or Hanning filter</li>
+</ul>
+<p>–</p>
+<ul>
+<li>Choice seems to matter</li>
+</ul>
+<p>–</p>
+<pre class="r"><code>smooth_interp &lt;- smooth_interpolate_pupil(pup_extend, pupil=&quot;pupil&quot;, 
+                                          extendpupil=&quot;extendpupil&quot;, 
+                                          extendblinks=TRUE, step.first=&quot;interp&quot;,                                                                      filter=&quot;moving&quot;, 
+                                          maxgap=Inf, type=&quot;linear&quot;, hz=250, n=5)</code></pre>
+<pre><code>## Performing linear interpolation</code></pre>
+<pre><code>## Smoothing the pupil trace with moving average</code></pre>
+<hr />
+<div id="section" class="section level2">
+<h2><img src="assets/img/lin.png" width="65%" style="display: block; margin: auto;" /><img src="assets/img/cubic.png" width="65%" style="display: block; margin: auto;" /></h2>
+</div>
+</div>
+<div id="baseline-correction" class="section level1">
+<h1>Baseline Correction</h1>
+<ul>
+<li>Subtractive or divisive (grand average baseline)</li>
+</ul>
+<pre class="r"><code>baseline_pupil &lt;- baseline_correction_pupil(smooth_interp, 
+                                            pupil_colname=&#39;pup_interp&#39;, 
+                                            baseline_window=c(500,1000))
+
+baseline_pupil&lt;-baseline_correction_pupil_msg(smooth_interp, pupil_colname=&#39;pup_interp&#39;, 
+                                              baseline_dur=100, event=&quot;target&quot;, 
+                                              baseline_method = &quot;sub&quot;)
+
+knitr::kable(head(baseline_pupil))</code></pre>
+<table style="width:100%;">
+<colgroup>
+<col width="5%" />
+<col width="3%" />
+<col width="5%" />
+<col width="3%" />
+<col width="3%" />
+<col width="3%" />
+<col width="3%" />
+<col width="3%" />
+<col width="9%" />
+<col width="2%" />
+<col width="3%" />
+<col width="3%" />
+<col width="6%" />
+<col width="5%" />
+<col width="3%" />
+<col width="7%" />
+<col width="4%" />
+<col width="7%" />
+<col width="12%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">subject</th>
+<th align="right">trial</th>
+<th align="right">baseline</th>
+<th align="right">time</th>
+<th align="right">pupil</th>
+<th align="right">x</th>
+<th align="right">y</th>
+<th align="right">blink</th>
+<th align="left">message</th>
+<th align="right">acc</th>
+<th align="right">block</th>
+<th align="right">rt</th>
+<th align="left">item</th>
+<th align="left">script</th>
+<th align="left">alt</th>
+<th align="right">extendpupil</th>
+<th align="right">interp</th>
+<th align="right">pup_interp</th>
+<th align="right">baselinecorrectedp</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">11c.edf</td>
+<td align="right">1</td>
+<td align="right">3584.3</td>
+<td align="right">0</td>
+<td align="right">3635</td>
+<td align="right">971.6</td>
+<td align="right">563.2</td>
+<td align="right">0</td>
+<td align="left">MODERECORDCRL</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">3833</td>
+<td align="left">mourn.png</td>
+<td align="left">cursive</td>
+<td align="left">word</td>
+<td align="right">3635</td>
+<td align="right">3635</td>
+<td align="right">3631.667</td>
+<td align="right">47.36667</td>
+</tr>
+<tr class="even">
+<td align="left">11c.edf</td>
+<td align="right">1</td>
+<td align="right">3584.3</td>
+<td align="right">4</td>
+<td align="right">3634</td>
+<td align="right">973.4</td>
+<td align="right">564.7</td>
+<td align="right">0</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">3833</td>
+<td align="left">mourn.png</td>
+<td align="left">cursive</td>
+<td align="left">word</td>
+<td align="right">3634</td>
+<td align="right">3634</td>
+<td align="right">3629.250</td>
+<td align="right">44.95000</td>
+</tr>
+<tr class="odd">
+<td align="left">11c.edf</td>
+<td align="right">1</td>
+<td align="right">3584.3</td>
+<td align="right">8</td>
+<td align="right">3626</td>
+<td align="right">971.8</td>
+<td align="right">566.7</td>
+<td align="right">0</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">3833</td>
+<td align="left">mourn.png</td>
+<td align="left">cursive</td>
+<td align="left">word</td>
+<td align="right">3626</td>
+<td align="right">3626</td>
+<td align="right">3627.600</td>
+<td align="right">43.30000</td>
+</tr>
+<tr class="even">
+<td align="left">11c.edf</td>
+<td align="right">1</td>
+<td align="right">3584.3</td>
+<td align="right">12</td>
+<td align="right">3622</td>
+<td align="right">971.0</td>
+<td align="right">566.2</td>
+<td align="right">0</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">3833</td>
+<td align="left">mourn.png</td>
+<td align="left">cursive</td>
+<td align="left">word</td>
+<td align="right">3622</td>
+<td align="right">3622</td>
+<td align="right">3624.800</td>
+<td align="right">40.50000</td>
+</tr>
+<tr class="odd">
+<td align="left">11c.edf</td>
+<td align="right">1</td>
+<td align="right">3584.3</td>
+<td align="right">16</td>
+<td align="right">3621</td>
+<td align="right">972.1</td>
+<td align="right">566.2</td>
+<td align="right">0</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">3833</td>
+<td align="left">mourn.png</td>
+<td align="left">cursive</td>
+<td align="left">word</td>
+<td align="right">3621</td>
+<td align="right">3621</td>
+<td align="right">3621.600</td>
+<td align="right">37.30000</td>
+</tr>
+<tr class="even">
+<td align="left">11c.edf</td>
+<td align="right">1</td>
+<td align="right">3584.3</td>
+<td align="right">20</td>
+<td align="right">3621</td>
+<td align="right">972.1</td>
+<td align="right">565.8</td>
+<td align="right">0</td>
+<td align="left">NA</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">3833</td>
+<td align="left">mourn.png</td>
+<td align="left">cursive</td>
+<td align="left">word</td>
+<td align="right">3621</td>
+<td align="right">3621</td>
+<td align="right">3620.000</td>
+<td align="right">35.70000</td>
+</tr>
+</tbody>
+</table>
+<hr />
+</div>
+<div id="artifact-rejection-missingness" class="section level1">
+<h1>Artifact Rejection: Missingness</h1>
+<ul>
+<li>Should remove trials and subjects with more than 20-30% of data</li>
+</ul>
+<pre class="r"><code>pup_missing &lt;- count_missing_pupil(baseline_pupil, pupil=&quot;pupil&quot;, 
+                                   missingthresh = .2)</code></pre>
+<pre><code>## % trials excluded:0.079</code></pre>
+<pre><code>## Participants taken out:character(0)</code></pre>
+<table style="width:6%;">
+<colgroup>
+<col width="5%" />
+</colgroup>
+<tbody>
+<tr class="odd">
+<td># Artifact Rejection: Spurious Values</td>
+</tr>
+<tr class="even">
+<td>+ Avoid using heuristics
+- +/- SD</td>
+</tr>
+<tr class="odd">
+<td>+ Visualize your data</td>
+</tr>
+<tr class="even">
+<td>+ Small baseline values can exaggerate differences (percent change)</td>
+</tr>
+<tr class="odd">
+<td><code>r puphist &lt;- ggplot(baseline_pupil, aes(x = pup_interp)) + geom_histogram(aes(y = ..count..), colour = "green", binwidth = 0.5)  + geom_vline(xintercept = 2500, linetype="dotted") + geom_vline(xintercept = 4000, linetype="dotted") + xlab("Pupil Size") + ylab("Count") + theme_bw()</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="histogram" class="section level1">
+<h1>Histogram</h1>
+<pre class="r"><code>puphist</code></pre>
+<p><img src="/talk/AMP_2020/amp2020_files/figure-html/unnamed-chunk-17-1.png" width="1152" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>pup_outliers &lt;- pup_missing %&gt;% 
+  # based on visual inspection
+  dplyr::filter(pup_interp  &gt;= 2500, pup_interp &lt;= 4000) </code></pre>
+<hr />
+</div>
+<div id="artifact-rejection-mad" class="section level1">
+<h1>Artifact rejection: MAD</h1>
+<p><span class="math display">\[
+{d}^{\prime \left[i\right]}=\max \left(\left|\frac{d\left[i\right]-d\left[i-1\right]}{t\left[i\right]-t\left[i-1\right]}\right|,\left|\frac{d\left[i+1\right]-d\left[i\right]}{t\left[i+1\right]-t\left[i\right]}\right|\right)
+\]</span></p>
+<p><span class="math display">\[
+\mathrm{MAD}=\mathrm{median}\left(\left|{d}^{\prime}\left[i\right]-\mathrm{median}\left({d}^{\prime}\right)\right|\right)
+\]</span></p>
+<p><span class="math display">\[
+\mathrm{Treshold}=\mathrm{median}\left({d}^{\prime}\right)+n\bullet \mathrm{MAD}
+\]</span></p>
+<pre class="r"><code>mad_removal &lt;- pup_outliers  %&gt;% 
+  group_by(subject, trial) %&gt;% 
+  mutate(speed=speed_pupil(pup_interp,time)) %&gt;% 
+  mutate(MAD=calc_mad(speed, n = 16)) %&gt;% 
+  filter(speed &lt; MAD)</code></pre>
+<table style="width:6%;">
+<colgroup>
+<col width="5%" />
+</colgroup>
+<tbody>
+<tr class="odd">
+<td># Event time Alignment</td>
+</tr>
+<tr class="even">
+<td>```r
+baseline_pupil_onset &lt;- mad_removal %&gt;%
+dplyr::group_by(subject, trial) %&gt;%
+dplyr::mutate(time_zero=onset_pupil(time, message, event=c(“target”))) %&gt;%
+ungroup() %&gt;%
+dplyr::filter(time_zero &gt;= 0 &amp; time_zero &lt;= 2500) %&gt;%
+select(subject, trial, time_zero, message, baselinecorrectedp, pup_interp, script)</td>
+</tr>
+<tr class="odd">
+<td>knitr::kable(head(baseline_pupil_onset))
+```</td>
+</tr>
+<tr class="even">
+<td>|subject | trial| time_zero|message | baselinecorrectedp| pup_interp|script |
+|:——-|—–:|———:|:——-|——————:|———-:|:——-|
+|11c.edf | 1| 0|target | -4.1| 3580.2|cursive |
+|11c.edf | 1| 4|NA | -4.1| 3580.2|cursive |
+|11c.edf | 1| 8|NA | -3.9| 3580.4|cursive |
+|11c.edf | 1| 12|NA | -4.5| 3579.8|cursive |
+|11c.edf | 1| 16|NA | -4.7| 3579.6|cursive |
+|11c.edf | 1| 20|NA | -5.3| 3579.0|cursive |</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="samples-to-bins" class="section level1">
+<h1>Samples to bins</h1>
+<pre class="r"><code>timebins1&lt;- gazer::downsample_gaze(baseline_pupil_onset, bin.length=100, timevar = &quot;time_zero&quot;, aggvars = c(&quot;subject&quot;, &quot;script&quot;, &quot;timebins&quot;), type=&quot;pupil&quot;)</code></pre>
+<pre><code>## Warning: The `.dots` argument of `group_by()` is deprecated as of dplyr 1.0.0.</code></pre>
+<pre class="r"><code>knitr::kable(head(timebins1))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">subject</th>
+<th align="left">script</th>
+<th align="right">timebins</th>
+<th align="right">aggbaseline</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">11c.edf</td>
+<td align="left">cursive</td>
+<td align="right">0</td>
+<td align="right">-2.869280</td>
+</tr>
+<tr class="even">
+<td align="left">11c.edf</td>
+<td align="left">cursive</td>
+<td align="right">100</td>
+<td align="right">-3.555438</td>
+</tr>
+<tr class="odd">
+<td align="left">11c.edf</td>
+<td align="left">cursive</td>
+<td align="right">200</td>
+<td align="right">-4.038295</td>
+</tr>
+<tr class="even">
+<td align="left">11c.edf</td>
+<td align="left">cursive</td>
+<td align="right">300</td>
+<td align="right">-1.726396</td>
+</tr>
+<tr class="odd">
+<td align="left">11c.edf</td>
+<td align="left">cursive</td>
+<td align="right">400</td>
+<td align="right">2.292393</td>
+</tr>
+<tr class="even">
+<td align="left">11c.edf</td>
+<td align="left">cursive</td>
+<td align="right">500</td>
+<td align="right">4.686093</td>
+</tr>
+</tbody>
+</table>
+<table style="width:6%;">
+<colgroup>
+<col width="5%" />
+</colgroup>
+<tbody>
+<tr class="odd">
+<td># Visualize</td>
+</tr>
+<tr class="even">
+<td><img src="assets/img/cur.png" width="490" style="display: block; margin: auto;" /></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="analysis-gca" class="section level1">
+<h1>Analysis: GCA</h1>
+<ul>
+<li>gazer includes a helper fucntion to perfrom GCA</li>
+</ul>
+<pre class="r"><code>code_poly(df = timebins1, predictor =&quot;timebins&quot;, poly.order =3, orthogonal =TRUE, draw.poly =TRUE)</code></pre>
+<p><img src="/talk/AMP_2020/amp2020_files/figure-html/unnamed-chunk-23-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre><code>## # A tibble: 156 x 8
+##    subject script  timebins aggbaseline timebins.Index   poly1     poly2   poly3
+##    &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt;       &lt;dbl&gt;          &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
+##  1 11c.edf cursive        0       -2.87              1 -0.327   3.91e- 1 -0.412 
+##  2 11c.edf cursive      100       -3.56              2 -0.301   2.97e- 1 -0.214 
+##  3 11c.edf cursive      200       -4.04              3 -0.275   2.11e- 1 -0.0576
+##  4 11c.edf cursive      300       -1.73              4 -0.248   1.33e- 1  0.0612
+##  5 11c.edf cursive      400        2.29              5 -0.222   6.25e- 2  0.146 
+##  6 11c.edf cursive      500        4.69              6 -0.196  -6.82e-17  0.200 
+##  7 11c.edf cursive      600       -2.86              7 -0.170  -5.47e- 2  0.228 
+##  8 11c.edf cursive      700      -10.1               8 -0.144  -1.02e- 1  0.232 
+##  9 11c.edf cursive      800       -8.49              9 -0.118  -1.41e- 1  0.217 
+## 10 11c.edf cursive      900       -3.05             10 -0.0915 -1.72e- 1  0.185 
+## # … with 146 more rows</code></pre>
+<hr />
+</div>
+<div id="the-future-of-gazer" class="section level1">
+<h1>The Future of gazeR</h1>
+<ul>
+<li><p>Submit to CRAN</p></li>
+<li><p>Support for more ETs</p></li>
+<li><p>GUI/Shiny</p></li>
+<li><p>Better error and warning messages</p></li>
+<li><p>What do folks want to see?</p></li>
+</ul>
+<hr />
+</div>
+<div id="thanks" class="section level1">
+<h1>Thanks!</h1>
+<hr />
+</div>

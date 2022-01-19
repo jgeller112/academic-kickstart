@@ -1,0 +1,182 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{lmodern}
+\usepackage{amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+  \usepackage{amssymb}
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={R Notebook},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifluatex
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+
+\title{R Notebook}
+\author{}
+\date{\vspace{-2.5em}}
+
+\begin{document}
+\maketitle
+
+Here is the sample text you provided
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(stringr) }\CommentTok{\#load this library}
+
+\NormalTok{dz}\OtherTok{=}\FunctionTok{read.csv}\NormalTok{(}\StringTok{"/Users/jgeller1/Downloads/DZ.csv"}\NormalTok{)}
+
+\FunctionTok{head}\NormalTok{(dz}\SpecialCharTok{$}\NormalTok{letters)}\CommentTok{\# what is contained in file}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "Markedly diminished <STRONG><FONT color=#8000ff><U>interest [A2a]</U></STRONG> or <STRONG><FONT color=#ff0080><U>pleasure [A2b]</U></STRONG> in all, or almost all, activities most of the day, nearly every day (as indicated either by subjective account or observation)."
+## [2] "\xcaDuring that time, did you lose interest or pleasure in things you usually enjoyed?\xca (What has that been like?\xca Give me some examples.) (check A2s if they volunteer that they lost interest or enjoyment in everything)"                                           
+## [3] "<BLOCKQUOTE style=\"MARGIN-RIGHT: 0px\" dir=ltr>"                                                                                                                                                                                                                            
+## [4] "<EM>IF YES</EM>: Has it been nearly every day?\xca How long has it lasted?\xca (As long as 2 weeks?)</BLOCKQUOTE>"                                                                                                                                                           
+## [5] "<P dir=ltr><STRONG><U>MAKE SURE TO MARK BOTH [<FONT color=#8000ff>A2a] and [<FONT color=#ff0080>A2b<FONT color=#0000a0>]: </U></STRONG><U>IF INTEREST/PLEASURE DISTINCTION UNCLEAR:</U> Did you lose interest, pleasure or both?"                                            
+## [6] "<P dir=ltr>If interviewee volunteers that they lost interest or pleasure in everything mark as A2as or A2bs as severe. Otherwise:"
+\end{verbatim}
+
+We can clean up the text between by calling this:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{remove\_chars}\OtherTok{=}\FunctionTok{gsub}\NormalTok{(}\StringTok{"\textless{}[\^{}\textgreater{}]+\textgreater{}"}\NormalTok{, }\StringTok{""}\NormalTok{,dz}\SpecialCharTok{$}\NormalTok{letters)}
+
+\NormalTok{remove\_chars}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "Markedly diminished interest [A2a] or pleasure [A2b] in all, or almost all, activities most of the day, nearly every day (as indicated either by subjective account or observation)."                                             
+## [2] "\xcaDuring that time, did you lose interest or pleasure in things you usually enjoyed?\xca (What has that been like?\xca Give me some examples.) (check A2s if they volunteer that they lost interest or enjoyment in everything)"
+## [3] ""                                                                                                                                                                                                                                 
+## [4] "IF YES: Has it been nearly every day?\xfc\xbe\x98\x96\x8c\xbc How long has it lasted?\xfc\xbe\x98\x96\x8c\xbc (As long as 2 weeks?)"                                                                                                                          
+## [5] "MAKE SURE TO MARK BOTH [A2a] and [A2b]: IF INTEREST/PLEASURE DISTINCTION UNCLEAR: Did you lose interest, pleasure or both?"                                                                                                       
+## [6] "If interviewee volunteers that they lost interest or pleasure in everything mark as A2as or A2bs as severe. Otherwise:"                                                                                                           
+## [7] "IF [A2a] coded \"3\", probe severity: Did you lose interest for everything, even for things like sex or interacting with friends?"                                                                                                
+## [8] "IF [A2b] coded \"3\", probe severity: Were you completely dissatisfied with everything, even when you did activities you normally would have found enjoyable?"                                                                    
+## [9] ""
+\end{verbatim}
+
+THis removed everything between ``\textless\textgreater{}'' as
+requested. However, there is still some junk left over. You can replace
+these by calling:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(stringr)}
+
+\NormalTok{remove\_chars1 }\OtherTok{\textless{}{-}} \FunctionTok{str\_replace\_all}\NormalTok{(remove\_chars, }\StringTok{"[[:punct:]]"}\NormalTok{, }\StringTok{" "}\NormalTok{)}
+
+\NormalTok{remove\_chars1}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "Markedly diminished interest  A2a  or pleasure  A2b  in all  or almost all  activities most of the day  nearly every day  as indicated either by subjective account or observation  "                                    
+## [2] "�During that time  did you lose interest or pleasure in things you usually enjoyed �  What has that been like � Give me some examples    check A2s if they volunteer that they lost interest or enjoyment in everything "
+## [3] ""                                                                                                                                                                                                                        
+## [4] "IF YES  Has it been nearly every day ������ How long has it lasted ������  As long as 2 weeks  "                                                                                                                         
+## [5] "MAKE SURE TO MARK BOTH  A2a  and  A2b   IF INTEREST PLEASURE DISTINCTION UNCLEAR  Did you lose interest  pleasure or both "                                                                                              
+## [6] "If interviewee volunteers that they lost interest or pleasure in everything mark as A2as or A2bs as severe  Otherwise "                                                                                                  
+## [7] "IF  A2a  coded  3   probe severity  Did you lose interest for everything  even for things like sex or interacting with friends "                                                                                         
+## [8] "IF  A2b  coded  3   probe severity  Were you completely dissatisfied with everything  even when you did activities you normally would have found enjoyable "                                                             
+## [9] ""
+\end{verbatim}
+
+\end{document}

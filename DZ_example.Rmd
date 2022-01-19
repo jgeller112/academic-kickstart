@@ -1,0 +1,43 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+  html_notebook: default
+  pdf_document: default
+---
+Here is the sample text you provided
+```{r}
+library(stringr) #load this library
+
+dz=read.csv("/Users/jgeller1/Downloads/DZ.csv")
+
+head(dz$letters)# what is contained in file
+
+
+
+```
+
+We can clean up the text between by calling this: 
+
+```{r}
+
+remove_chars=gsub("<[^>]+>", "",dz$letters)
+
+remove_chars
+
+```
+
+This removed everything between "<>" as requested. However, there is still some junk left over. You can replace these by calling: 
+
+```{r}
+
+library(stringr)
+
+remove_chars1 <- str_replace_all(remove_chars, "[[:punct:]]", " ")
+
+remove_chars1
+
+
+```
+
