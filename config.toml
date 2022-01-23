@@ -1,29 +1,16 @@
-# Configuration of Academic
-# Documentation: https://sourcethemes.com/academic/
-#
-# This file is formatted using TOML syntax - learn more at https://learnxinyminutes.com/docs/toml/
-# Each configuration section is defined by a name in square brackets (e.g. `[outputs]`).
 
-# Title of your site
-title = "Jason Geller, PHD"
+title = 'Jason Geller, PHD'
 
 # The URL of your site.
 # End your URL with a `/` trailing slash, e.g. `https://example.com/`.
-baseurl = "/"
-
-# Enter a copyright notice to display in the site footer.
-# To display a copyright symbol, type `&copy;`. For current year, type `{year}`.
-copyright = ""
-
-# Enable analytics by entering your Google Analytics tracking ID
-googleAnalytics = ""
+baseurl = 'www.drjasongeller.com/'
 
 ############################
 ## Advanced options below ##
 ############################
 
 # Name of Academic theme folder in `themes/`.
-theme = "academic"
+theme='hugo-apero'
 
 # Get last modified date for content from Git?
 enableGitInfo = false
@@ -36,8 +23,6 @@ removePathAccents = true  # Workaround for https://github.com/gohugoio/hugo/issu
 
 paginate = 10  # Number of items per page in paginated lists.
 enableEmoji = true
-footnotereturnlinkcontents = "<sup>^</sup>"
-ignoreFiles = ["\\.ipynb$", ".ipynb_checkpoints$", "\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 
 [outputs]
   home = [ "HTML", "RSS", "JSON", "WebAppManifest" ]
@@ -69,3 +54,8 @@ ignoreFiles = ["\\.ipynb$", ".ipynb_checkpoints$", "\\.Rmd$", "\\.Rmarkdown$", "
   category = "categories"
   publication_type = "publication_types"
   author = "authors"
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
